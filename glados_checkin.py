@@ -491,17 +491,51 @@ def main():
         config=config
     )
 
+
+def main():
+    """Main function"""
+    print("=" * 50)
+    print("GLaDOS Auto Check-in")
+    print("=" * 50)
+
+    # Load configuration
+    try:
+        config = Config("config.yaml")
+    except FileNotFoundError:
+        print("✗ config.yaml not found. Please create it first.")
+        return
+    except Exception as e:
+        print(f"✗ Error loading config: {e}")
+        return
+
+    # Check email password
+    email_password = config.get('email', 'password')
+    if not email_password:
+        print("✗ Email password not set in config.yaml")
+        print("  Please set your Gmail App Password:")
+        print("  1. Go to: https://myaccount.google.com/apppasswords")
+        print("  2. Create an App Password")
+        print("  3. Add it to config.yaml under email.password")
+        return
+
+    # Initialize clients
+    glados = GLaDOSClient(config)
+    gmail_reader = GmailReader(
+        config.get('email', 'address'),
+        config.get('email', 'password'),
+        config=config
+    )
+
     # Try to load existing session
     session_path = config.get('session', 'save_path', default='session.json')
     session_loaded = glados.load_session(session_path)
 
-    if session_loaded:
-        print("✓ Using existing session (skip login)")
-    else:
+    # Function to perform login
+    def do_login():
         print("\nStep 1: Requesting verification code...")
         if not glados.send_verification_code():
             print("✗ Failed to send verification code")
-            return
+            return False
 
         print("\nStep 2: Waiting for verification code...")
         print("  (Check your Gmail inbox)")
@@ -509,20 +543,50 @@ def main():
 
         if not verification_code:
             print("✗ No verification code received")
-            return
+            return False
 
         print(f"\nStep 3: Logging in with code: {verification_code}...")
         if not glados.login(verification_code):
             print("\n✗ Login failed")
-            return
+            return False
 
         # Save session for future use
         glados.save_session(session_path)
         print("\n✓ Login process completed successfully!")
+        return True
+
+    # Try to use existing session or login
+    if session_loaded:
+        print("✓ Using existing session (skip login)")
+    else:
+        if not do_login():
+            return
 
     # Perform check-in (whether using existing session or new login)
     print("\nStep 4: Performing daily check-in...")
-    if glados.checkin():
+    checkin_success = glados.checkin()
+
+    # If check-in failed with existing session, try to re-login and check-in again
+    if not checkin_success and session_loaded:
+        print("\n⚠ Check-in failed with existing session. Session might be expired.")
+        print("Attempting to re-login...")
+
+        # Delete old session
+        import os
+        if os.path.exists(session_path):
+            os.remove(session_path)
+            print(f"✓ Deleted expired session: {session_path}")
+
+        # Re-login
+        if do_login():
+            print("\nStep 5: Retrying daily check-in with new session...")
+            if glados.checkin():
+                print("\n✓ All tasks completed successfully!")
+            else:
+                print("\n✗ Check-in failed again after re-login")
+        else:
+            print("\n✗ Re-login failed")
+    elif checkin_success:
         print("\n✓ All tasks completed successfully!")
     else:
         print("\n✗ Check-in failed (but login was successful)")
