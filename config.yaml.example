@@ -1,0 +1,26 @@
+# GLaDOS Auto Check-in Configuration
+
+# Email settings
+email:
+  address: "your_email@gmail.com"  # Your Gmail address
+  password: ""  # Use App Password for Gmail: https://myaccount.google.com/apppasswords
+  imap_server: "imap.gmail.com"
+  imap_port: 993
+
+# Proxy settings (optional)
+proxy:
+  # SOCKS5 proxy for IMAP connection (e.g., from Clash, v2ray, etc.)
+  # Leave empty to disable proxy
+  socks5_host: ""  # e.g., "192.168.1.237"
+  socks5_port: 7891  # Common SOCKS5 port (Clash: 7891, v2ray: 1080)
+
+# GLaDOS settings
+glados:
+  base_url: "https://glados.cloud"
+  login_url: "https://glados.cloud/api/login"
+  auth_url: "https://glados.cloud/api/authorization"
+  site: "glados.network"
+
+# Session settings
+session:
+  save_path: "session.json"
