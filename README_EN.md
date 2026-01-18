@@ -205,7 +205,26 @@ session:
 
 ## Scheduled Tasks
 
-### Linux (crontab)
+### Option 1: GitHub Actions (Recommended) ✨
+
+Use GitHub Actions for cloud-based automatic check-in without local execution.
+
+**Benefits**:
+- ✅ No need for local machine, runs 24/7 in the cloud
+- ✅ Completely free (for public repositories)
+- ✅ Automatic retry on failure
+- ✅ View execution logs
+- ✅ Support for manual triggering
+
+**Quick Start**:
+
+1. Push code to GitHub
+2. Add Secrets in repository settings (email address and password)
+3. Automatic daily check-in at 8 AM
+
+**Detailed Guide**: See [GITHUB_ACTIONS_GUIDE.md](GITHUB_ACTIONS_GUIDE.md)
+
+### Option 2: Linux (crontab)
 
 ```bash
 # Edit crontab
@@ -215,7 +234,7 @@ crontab -e
 0 9 * * * cd /path/to/auto-checkin && /path/to/anaconda3/envs/glados-checkin/bin/python glados_checkin.py >> checkin.log 2>&1
 ```
 
-### Windows (Task Scheduler)
+### Option 3: Windows (Task Scheduler)
 
 1. Open "Task Scheduler"
 2. Create Basic Task
@@ -232,12 +251,14 @@ Implemented features:
 - ✅ Session management
 - ✅ Daily check-in
 - ✅ Proxy support
+- ✅ Auto re-login on session expiry
+- ✅ GitHub Actions scheduled tasks
 
 Optional enhancements:
-- Scheduled task execution (using cron or Windows Task Scheduler)
 - Logging
 - Email notification of check-in results
 - Multi-account support
+- Telegram/WeChat notifications
 
 ## Troubleshooting
 

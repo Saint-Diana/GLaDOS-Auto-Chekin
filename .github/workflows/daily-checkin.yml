@@ -1,0 +1,75 @@
+name: GLaDOS Daily Check-in
+
+on:
+  # Scheduled check-in at 8 AM Beijing Time (0 AM UTC)
+  schedule:
+    - cron: '0 0 * * *'
+
+  # Allow manual workflow trigger
+  workflow_dispatch:
+
+jobs:
+  check-in:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create config file from secrets
+        run: |
+          cat > config.yaml << EOF
+          # GLaDOS Auto Check-in Configuration
+
+          # Email settings
+          email:
+            address: "${{ secrets.EMAIL_ADDRESS }}"
+            password: "${{ secrets.EMAIL_PASSWORD }}"
+            imap_server: "imap.gmail.com"
+            imap_port: 993
+
+          # Proxy settings (optional)
+          proxy:
+            socks5_host: "${{ secrets.PROXY_HOST }}"
+            socks5_port: ${{ secrets.PROXY_PORT }}
+
+          # GLaDOS settings
+          glados:
+            base_url: "https://glados.cloud"
+            login_url: "https://glados.cloud/api/login"
+            auth_url: "https://glados.cloud/api/authorization"
+            site: "glados.network"
+
+          # Session settings
+          session:
+            save_path: "session.json"
+          EOF
+
+      - name: Run GLaDOS check-in
+        run: python glados_checkin.py
+
+      - name: Upload session artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: glados-session
+          path: session.json
+          retention-days: 7
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkin-logs
+          path: |
+            *.log
+          retention-days: 30

@@ -194,7 +194,26 @@ session:
 
 ## 定时任务设置
 
-### Linux (crontab)
+### 方式一：GitHub Actions（推荐）✨
+
+使用 GitHub Actions 可以实现云端自动签到，无需本地运行。
+
+**优势**：
+- ✅ 无需本地运行，24/7 在线
+- ✅ 完全免费（公开仓库）
+- ✅ 自动重试失败
+- ✅ 查看执行日志
+- ✅ 支持手动触发
+
+**快速开始**：
+
+1. 将代码推送到 GitHub
+2. 在仓库设置中添加 Secrets（邮箱地址和密码）
+3. 每天早上 8 点自动执行签到
+
+**详细配置指南**：查看 [GITHUB_ACTIONS_GUIDE.md](GITHUB_ACTIONS_GUIDE.md)
+
+### 方式二：Linux (crontab)
 
 ```bash
 # 编辑 crontab
@@ -204,7 +223,7 @@ crontab -e
 0 9 * * * cd /path/to/auto-checkin && /path/to/anaconda3/envs/glados-checkin/bin/python glados_checkin.py >> checkin.log 2>&1
 ```
 
-### Windows (Task Scheduler)
+### 方式三：Windows (Task Scheduler)
 
 1. 打开"任务计划程序"
 2. 创建基本任务
@@ -221,12 +240,14 @@ crontab -e
 - ✅ 会话管理
 - ✅ 每日签到
 - ✅ 代理支持
+- ✅ Session 过期自动重新登录
+- ✅ GitHub Actions 定时任务
 
 可选的增强功能：
-- 定时任务调度（使用 cron 或 Windows Task Scheduler）
 - 日志记录
 - 邮件通知签到结果
 - 多账号支持
+- Telegram/微信通知
 
 ## 故障排除
 
